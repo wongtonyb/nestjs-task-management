@@ -2,12 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Task, TaskStatus } from './task.model';
 import { v4 as uuid } from 'uuid'; //unique id generator
 import { CreateTaskDto } from './dto/create-task.dto';
-import { DeleteTaskDto } from './dto/delete-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter-dto';
 
 @Injectable()
 export class TasksService {
-  // good practice: removes risk of other code in system from modifying data gathered from this service
   private tasks: Task[] = [];
 
   getAllTasks(): Task[] {
@@ -23,12 +21,10 @@ export class TasksService {
     if (search) {
       tasks = tasks.filter(
         (task) =>
-          task.title.includes(search) ||
-          task.description.includes(search),
+          task.title.includes(search) || task.description.includes(search),
       );
     }
     return tasks;
-
   }
 
   getTaskById(id: string): Task | undefined {
@@ -51,14 +47,6 @@ export class TasksService {
   deleteTask(id: string): void {
     this.tasks = this.tasks.filter((task) => task.id !== id);
   }
-
-  // updateTaskStatus(deleteTaskDto: DeleteTaskDto): Task | undefined {
-  //     const task = this.getTaskById(deleteTaskDto.id);
-  //     if (task) {
-  //         task.status = deleteTaskDto.status;
-  //     }
-  //     return task;
-  // }
 
   updateTaskStatus(id: string, status: TaskStatus): Task | undefined {
     const task = this.getTaskById(id);
