@@ -1,4 +1,4 @@
-import { DataSource, Repository } from 'typeorm';
+import { Brackets, DataSource, Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -25,7 +25,6 @@ export class TasksRepository extends Repository<Task> {
     return task;
   }
 
-  // currently querying for when either is true (not when both is true)
   async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
     const { status, search } = filterDto;
 
@@ -37,8 +36,10 @@ export class TasksRepository extends Repository<Task> {
 
     if (search) {
       query.andWhere(
-        'LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search)',
-        { search: `%${search}%` }, //%% will search for anything containing partial of that string
+        new Brackets(qb => {
+          qb.where('LOWER(task.title) LIKE LOWER(:search)', { search: `%${search}%` })
+            .orWhere('LOWER(task.description) LIKE LOWER(:search)', { search: `%${search}%` });
+        }),
       );
     }
 
